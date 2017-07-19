@@ -4,6 +4,9 @@
  * 添加了args[i]: 这样的提示符
  * 修改了TargetTextPath，ExceptionPath。使用相对路径
  * 更改了\r\n的位置
+ * 
+ * 2017/07/19   
+ * Changed exit behavior, added comments.
 */
 using System;
 using System.Windows.Forms;
@@ -19,21 +22,38 @@ namespace IFEO_V2
         /// 应用程序的主入口点。
         /// </summary>
         [STAThread]
-        static void Main()
+        static int Main(string[] args)
         {
-            string[] args = Environment.GetCommandLineArgs();
             if (args.Length > 1)
             {
                 try
                 {
+                    /// Added current datatime.
                     File.AppendAllText(TargetTextPath, DateTime.Now.ToLongDateString() + "\t" + DateTime.Now.ToLongTimeString() + "\r\n");
+
+                    /// Play a sound indicate we intercept the process.
                     PlayExceptionSound();
+
+                    /// Print message to file.
                     for (int i = 0; i < args.Length; i++)
                     {
                         File.AppendAllText(TargetTextPath, "args[" + i.ToString() + "]: " + args[i]);
                         File.AppendAllText(TargetTextPath, "\r\n");
                     }
+                    /// End of current record.
                     File.AppendAllText(TargetTextPath, "----------------------------------------------------\r\n");
+
+                    /*
+                     * UAC would return "Access denied" if you hit 'no' in UAC dialog.
+                     * So we emulate as if we hit 'no'.
+                     * 
+                     * https://msdn.microsoft.com/en-us/library/windows/desktop/ms681382(v=vs.85).aspx
+                     * 
+                     * ERROR_ACCESS_DENIED
+                     * 5 (0x5)
+                     * Access is denied.
+                     */
+                    return 5;
                 }
                 catch (Exception ex)
                 {
@@ -42,10 +62,14 @@ namespace IFEO_V2
             }
             else
             {
+                /// If no args presented, we show the window normally.
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new Form1());
+                return 0;
             }
+
+            return 0;
         }
 
         static void PlayExceptionSound()
