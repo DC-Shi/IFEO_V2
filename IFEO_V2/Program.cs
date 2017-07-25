@@ -52,8 +52,11 @@ namespace IFEO_V2
                      * ERROR_ACCESS_DENIED
                      * 5 (0x5)
                      * Access is denied.
+                     * ERROR_CANCELLED
+                     * 1223 (0x4C7)
+                     * The operation was canceled by the user.
                      */
-                    return 5;
+                    return 1223;
                 }
                 catch (Exception ex)
                 {
